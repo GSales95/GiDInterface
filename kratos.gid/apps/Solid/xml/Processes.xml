@@ -70,4 +70,17 @@
       <parameter n="center" pn="Center" type="vector" v="0.0,0.0,0.0"  />
     </inputs>
   </Process>
+
+  
+<!--
+  Output processes 
+-->
+
+  <Process n="AssignBeamSkinProcess" pn="Assign skin to beams" python_module="build_beam_skin_process"
+	   kratos_module="KratosMultiphysics.SolidMechanicsApplication" >
+    <inputs>
+      <parameter n="number_of_sides" pn="Number of sides" type="integer"  v="25" />
+      <parameter n="diameter" pn="Diameter" type="double"  v="25" has_units="1"/>
+    </inputs>
+  </Process>
   </ProcessList>
