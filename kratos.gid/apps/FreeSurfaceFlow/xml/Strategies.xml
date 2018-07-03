@@ -51,7 +51,7 @@
 
 		<!-- scheme settings -->
 		<schemes>
-			<scheme n="FS" pn="Fractional step generic scheme" help="FilterElements">
+			<scheme n="FreeSurface" pn="Free surface generic scheme" help="FilterElements">
 				<parameter_list>
 				</parameter_list>
 				<element_filters>

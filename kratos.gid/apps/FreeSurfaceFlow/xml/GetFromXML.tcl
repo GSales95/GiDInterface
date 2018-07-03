@@ -2,7 +2,6 @@ namespace eval FreeSurfaceFlow::xml {
     # Namespace variables declaration
     variable dir
     variable export_dir
-
 }
 
 proc FreeSurfaceFlow::xml::Init { } {
@@ -14,7 +13,6 @@ proc FreeSurfaceFlow::xml::Init { } {
     Model::getSolutionStrategies Strategies.xml
 }
 
-
 proc FreeSurfaceFlow::xml::MultiAppEvent {args} {
     if {$args eq "init"} {
         spdAux::parseRoutes
@@ -23,12 +21,10 @@ proc FreeSurfaceFlow::xml::MultiAppEvent {args} {
 }
 
 proc FreeSurfaceFlow::xml::getUniqueName {name} {
-    return ${::EmbeddedFluid::prefix}${name}
+    return ${::FreeSurfaceFlow::prefix}${name}
 }
 
-proc FreeSurfaceFlow::xml::CustomTree { args } {
-    # Hide Results Cut planes
-    
+proc FreeSurfaceFlow::xml::CustomTree { args } {    
 
 }
 
