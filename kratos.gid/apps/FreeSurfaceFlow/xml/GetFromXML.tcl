@@ -8,11 +8,10 @@ namespace eval FreeSurfaceFlow::xml {
 proc FreeSurfaceFlow::xml::Init { } {
     # Namespace variables inicialization
     variable dir
-    Model::DestroyEverything
     Model::InitVariables dir $FreeSurfaceFlow::dir
 
     Model::ForgetSolutionStrategies
-    Model::getSolutionStrategies "../../FreeSurfaceFlow/xml/Strategies.xml"
+    Model::getSolutionStrategies Strategies.xml
 }
 
 
