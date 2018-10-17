@@ -131,63 +131,64 @@ proc Pfem::write::GetPFEM_SolverSettingsDict { } {
     set solverSettingsDict [dict create]
     set currentStrategyId [write::getValue PFEM_SolStrat]
     set solution_strategy [::Model::GetSolutionStrategy $currentStrategyId] 
-    set strategy_write_name [$solution_strategy getAttribute "python_module"]
-    dict set solverSettingsDict solver_type $strategy_write_name
+    if {[$solution_strategy getAttribute Type] eq "Monolithic"} {
+        set strategy_write_name [$solution_strategy getAttribute "python_module"]
+        dict set solverSettingsDict solver_type $strategy_write_name
 
-    # Solver parameters
-    set solverParametersDict [dict create]
+        # Solver parameters
+        set solverParametersDict [dict create]
 
-    # Time settings
-    set timeDataDict [dict create]
-    dict set timeDataDict time_step [write::getValue PFEM_TimeParameters DeltaTime]
-    #dict set timeDataDict start_time [write::getValue PFEM_TimeParameters StartTime]
-    dict set timeDataDict end_time [write::getValue PFEM_TimeParameters EndTime]
-    #   dict set solverParametersDict time_settings $timeDataDict
+        # Time settings
+        set timeDataDict [dict create]
+        dict set timeDataDict time_step [write::getValue PFEM_TimeParameters DeltaTime]
+        #dict set timeDataDict start_time [write::getValue PFEM_TimeParameters StartTime]
+        dict set timeDataDict end_time [write::getValue PFEM_TimeParameters EndTime]
+        #   dict set solverParametersDict time_settings $timeDataDict
 
-    # Time integration settings
-    set integrationDataDict [dict create]
+        # Time integration settings
+        set integrationDataDict [dict create]
 
-    set problemtype [write::getValue PFEM_DomainType]
+        set problemtype [write::getValue PFEM_DomainType]
 
-    if {$problemtype eq "Solids"} {
+        if {$problemtype eq "Solids"} {
 
-        dict set integrationDataDict solution_type [write::getValue PFEM_SolutionType]
+            dict set integrationDataDict solution_type [write::getValue PFEM_SolutionType]
 
-        set solutiontype [write::getValue PFEM_SolutionType]
+            set solutiontype [write::getValue PFEM_SolutionType]
 
-        if {$solutiontype eq "Static"} {
-            dict set integrationDataDict integration_method [write::getValue PFEM_Scheme]
-        } elseif {$solutiontype eq "Dynamic"} {
-            dict set integrationDataDict time_integration [write::getValue PFEM_SolStrat]
-            dict set integrationDataDict integration_method [write::getValue PFEM_Scheme]
+            if {$solutiontype eq "Static"} {
+                dict set integrationDataDict integration_method [write::getValue PFEM_Scheme]
+            } elseif {$solutiontype eq "Dynamic"} {
+                dict set integrationDataDict time_integration [write::getValue PFEM_SolStrat]
+                dict set integrationDataDict integration_method [write::getValue PFEM_Scheme]
+            }
+
+            set buffer 3
+            dict set integrationDataDict "buffer_size" [expr $buffer]
+
+            dict set solverParametersDict time_integration_settings $integrationDataDict
         }
 
-	set buffer 3
-	dict set integrationDataDict "buffer_size" [expr $buffer]
+        # Solving strategy settings
+        set strategyDataDict [dict create]
 
-	dict set solverParametersDict time_integration_settings $integrationDataDict
+        # Solution strategy parameters and Solvers
+        set strategyDataDict [dict merge $strategyDataDict [write::getSolutionStrategyParametersDict] ]
+
+        set reform_dofs true
+        dict set strategyDataDict reform_dofs_at_each_step [expr $reform_dofs]
+
+        dict set solverParametersDict solving_strategy_settings $strategyDataDict
+
+        # Linear solver settings
+        set solverParametersDict [dict merge $solverParametersDict [write::getSolversParametersDict Pfem] ]
+
+        # Add Dofs
+        dict set solverParametersDict dofs [list {*}[DofsInElements] ]
+        
+        dict set solverSettingsDict Parameters $solverParametersDict
+
     }
-
-    # Solving strategy settings
-    set strategyDataDict [dict create]
-
-    # Solution strategy parameters and Solvers
-    set strategyDataDict [dict merge $strategyDataDict [write::getSolutionStrategyParametersDict] ]
-
-    set reform_dofs true
-    dict set strategyDataDict reform_dofs_at_each_step [expr $reform_dofs]
-
-    dict set solverParametersDict solving_strategy_settings $strategyDataDict
-
-    # Linear solver settings
-    set solverParametersDict [dict merge $solverParametersDict [write::getSolversParametersDict Pfem] ]
-
-    # Add Dofs
-    dict set solverParametersDict dofs [list {*}[DofsInElements] ]
-    
-    dict set solverSettingsDict Parameters $solverParametersDict
-
-
     return $solverSettingsDict
 }
 
