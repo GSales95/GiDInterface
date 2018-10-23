@@ -1,11 +1,9 @@
 import KratosMultiphysics
 import KratosMultiphysics.ExternalSolversApplication
-import KratosMultiphysics.PfemApplication
 import KratosMultiphysics.SolidMechanicsApplication
 import KratosMultiphysics.ConstitutiveModelsApplication
-import KratosMultiphysics.ContactMechanicsApplication
-import KratosMultiphysics.PfemSolidMechanicsApplication
-import MainSolid
+import KratosMultiphysics.DelaunayMeshingApplication
+import KratosMultiphysics.PfemApplication
+import MainPfem
 
-MainSolid.Solution().Run()
-
+MainPfem.PfemSolution().Run()
