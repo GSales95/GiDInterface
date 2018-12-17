@@ -78,6 +78,7 @@ proc write::AddConfigurationAttribute {att val} {
 
 # Write Events
 proc write::writeEvent { filename } {
+    update ;#else appid is empty running in batch mode with window
     set time_monitor [GetConfigurationAttribute time_monitor]
     customlib::UpdateDocument
     SetConfigurationAttribute dir [file dirname $filename]
@@ -171,7 +172,7 @@ proc write::writeAppMDPA {appid} {
 
     #### MDPA Write ####
     set wevent [$activeapp getWriteModelPartEvent]
-    set filename "[file tail [GiD_Info project ModelName]].mdpa"
+    set filename "[Kratos::GetModelName].mdpa"
 
     CloseFile
     OpenFile $filename

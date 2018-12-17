@@ -83,7 +83,7 @@ proc write::WriteJSON {processDict} {
 proc write::GetDefaultOutputDict { {appid ""} } {
     set outputDict [dict create]
     set resultDict [dict create]
-
+    
     if {$appid eq ""} {set results_UN Results } {set results_UN [apps::getAppUniqueName $appid Results]}
     set GiDPostDict [dict create]
     dict set GiDPostDict GiDPostMode                [getValue $results_UN GiDPostMode]
@@ -435,10 +435,10 @@ proc write::GetRestartProcess { {un ""} {name "" } } {
     set saveValue [write::getStringBinaryValue $un SaveRestart]
 
     dict set resultDict "process_name" "RestartProcess"
-    set model_name [file tail [GiD_Info Project ModelName]]
+    set model_name [Kratos::GetModelName]
     dict set params "model_part_name" [write::GetModelPartNameWithParent $model_name]
     dict set params "save_restart" $saveValue
-    dict set params "restart_file_name" [file tail [GiD_Info Project ModelName]]
+    dict set params "restart_file_name" $model_name
     set xp1 "[spdAux::getRoute $un]/container\[@n = '$name'\]/value"
     set file_label [getValue $un RestartFileLabel]
     dict set params "restart_file_label" $file_label
@@ -515,15 +515,39 @@ proc write::GetModelPartNameWithParent { child_name {forced_parent ""}} {
     return $result
 }
 
-proc write::GetDefaultOutputProcessDict { } {
+proc write::GetDefaultProblemDataDict { {appid ""} } {
+    
+    if {$appid eq ""} {set results_UN Results } {set results_UN [GetConfigurationAttribute results_un]}
+
+    # Problem name
+    set problem_data_dict [dict create]
+    set model_name [Kratos::GetModelName]
+    dict set problem_data_dict problem_name $model_name
+
+    # Parallelization
+    set paralleltype [write::getValue ParallelType]
+    dict set problem_data_dict "parallel_type" $paralleltype
+
+    # Write the echo level in the problem data section
+    set echo_level [write::getValue $results_UN EchoLevel]
+    dict set problem_data_dict echo_level $echo_level
+
+    # Time Parameters
+    dict set problem_data_dict start_time [write::getValue [GetConfigurationAttribute time_parameters_un] StartTime]
+    dict set problem_data_dict end_time [write::getValue [GetConfigurationAttribute time_parameters_un] EndTime]
+
+    return $problem_data_dict
+}
+
+proc write::GetDefaultOutputProcessDict { {appid ""}  } {
     # prepare params
-    set model_name [file tail [GiD_Info Project ModelName]]
+    set model_name [Kratos::GetModelName]
     set paralleltype [write::getValue ParallelType]
 
     set outputProcessParams [dict create]
     dict set outputProcessParams model_part_name [write::GetModelPartNameWithParent [GetConfigurationAttribute output_model_part_name]] 
     dict set outputProcessParams output_name $model_name
-    dict set outputProcessParams postprocess_parameters [write::GetDefaultOutputDict]
+    dict set outputProcessParams postprocess_parameters [write::GetDefaultOutputDict $appid]
 
     set outputConfigDict [dict create]
     if {$paralleltype eq "OpenMP"} {
@@ -545,4 +569,14 @@ proc write::GetDefaultOutputProcessDict { } {
 
     set outputProcessesDict [dict create]
     dict set outputProcessesDict gid_output $output_process_list
+}
+
+proc write::GetDefaultRestartDict { } {
+
+    set restartDict [dict create]
+    dict set restartDict SaveRestart False
+    dict set restartDict RestartFrequency 0
+    dict set restartDict LoadRestart False
+    dict set restartDict Restart_Step 0
+    return $restartDict
 }

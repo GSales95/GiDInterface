@@ -8,12 +8,13 @@ namespace eval Fluid::write {
 proc Fluid::write::Init { } {
     # Namespace variables inicialization
 
-    InitConditionsMap
     SetAttribute parts_un FLParts
     SetAttribute nodal_conditions_un FLNodalConditions
     SetAttribute conditions_un FLBC
     SetAttribute materials_un FLMaterials
+    SetAttribute results_un FLResults
     SetAttribute drag_un FLDrags
+    SetAttribute time_parameters_un FLTimeParameters
     SetAttribute writeCoordinatesByGroups 0
     SetAttribute validApps [list "Fluid"]
     SetAttribute main_script_file "KratosFluid.py"
@@ -115,7 +116,7 @@ proc Fluid::write::writeBoundaryConditions { } {
     }
     set skin_group_name "_HIDDEN__SKIN_"
     if {[GiD_Groups exists $skin_group_name]} {GiD_Groups delete $skin_group_name}
-    GidUtils::MergeGroups $skin_group_name $groups
+    spdAux::MergeGroups $skin_group_name $groups
 
     # Write the conditions
     if {$::Model::SpatialDimension eq "3D"} {
@@ -177,7 +178,7 @@ proc Fluid::write::writeConditionsMesh { } {
             set groupid [get_domnode_attribute $group n]
             dict set groups_dict $groupid what "Conditions"
         } 
-        write::writeConditionGroupedSubmodelParts $condid $groups_dict
+        write::writeConditionGroupedSubmodelPartsByUniqueId $condid $groups_dict $Fluid::write::FluidConditionMap
     }
 }
 
