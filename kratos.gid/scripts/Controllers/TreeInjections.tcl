@@ -173,6 +173,38 @@ proc spdAux::injectConditions { basenode args} {
     spdAux::processDynamicNodes $parent
 }
 
+proc spdAux::_GetGeomElemType {cond_type cnd} {
+    set etype ""
+    
+    if {$cond_type eq "nodal"} {
+        set etype [$cnd getOv]
+    } else {
+        set etype [join [string tolower [$cnd getAttribute ElementType]] ,]
+    }
+    if {$etype eq ""} {
+        if {$::Model::SpatialDimension eq "3D"} {
+            set etype "point,line,surface,volume"
+        } else {
+            set etype "point,line,surface"
+        }
+    }
+    return $etype
+}
+proc spdAux::_GetMeshElemType {cond_type cnd} {
+    set etype ""
+    
+    if {$cond_type eq "nodal"} {
+        set etype "node"
+    } else {
+        set etype [join [string tolower [$cnd getAttribute MeshElementType]] ,]
+    }
+    set valid_types [list "node" "element" "none" ""]
+    if {$etype eq "" || [lsearch $valid_types $etype] eq "-1"} {
+        set etype ""
+    }
+    return $etype
+}
+
 proc spdAux::_injectCondsToTree {basenode cond_list {cond_type "normal"} } {
     set conds [$basenode parent]
     set AppUsesIntervals [apps::ExecuteOnApp [GetAppIdFromNode $conds] GetAttribute UseIntervals]
@@ -182,19 +214,10 @@ proc spdAux::_injectCondsToTree {basenode cond_list {cond_type "normal"} } {
         set n [$cnd getName]
         set pn [$cnd getPublicName]
         set help [$cnd getHelp]
-        set etype ""
-        if {$cond_type eq "nodal"} {
-            set etype [$cnd getOv]
-        } else {
-            set etype [join [string tolower [$cnd getAttribute ElementType]] ,]
-        }
-        if {$etype eq ""} {
-            if {$::Model::SpatialDimension eq "3D"} {
-                set etype "point,line,surface,volume"
-            } else {
-                set etype "point,line,surface"
-            }
-        }
+        set etype [spdAux::_GetGeomElemType $cond_type $cnd]
+        set mtype [spdAux::_GetMeshElemType $cond_type $cnd]
+        W "$pn $mtype"
+        
         set units [$cnd getAttribute "units"]
         set um [$cnd getAttribute "unit_magnitude"]
         set processName [$cnd getProcessName]
@@ -208,7 +231,7 @@ proc spdAux::_injectCondsToTree {basenode cond_list {cond_type "normal"} } {
             set state [$cnd getAttribute state]
             if {$state eq ""} {set state "CheckNodalConditionState"}
         }
-        set node "<condition n='$n' pn='$pn' ov='$etype' ovm='' icon='shells16' help='$help' state='\[$state\]' update_proc='\[OkNewCondition\]' check='$check'>"
+        set node "<condition n='$n' pn='$pn' ov='$etype' ovm='$mtype' icon='shells16' help='$help' state='\[$state\]' update_proc='\[OkNewCondition\]' check='$check'>"
         set symbol_data [$cnd getSymbol]
         if { [llength $symbol_data] } {
             set txt "<symbol"
