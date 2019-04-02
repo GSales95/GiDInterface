@@ -16,7 +16,7 @@
     </outputs>
   </ConditionItem>
 
-  <ConditionItem n="DEM-VelocityBC" pn="DEM-VelocityBC" Interval="False" ImplementedInApplication="DEMApplication" MinimumKratosVersion="9000" ProductionReady="ProductionReady" WorkingSpaceDimension="3D" LocalSpaceDimension="2" ProcessName="DEM-VelocityBC-Process" help="" VariableName="SPHEREBC">
+  <ConditionItem n="DEM-VelocityBC" pn="DEM-VelocityBC" Interval="False" MeshElementType="element" ImplementedInApplication="DEMApplication" MinimumKratosVersion="9000" ProductionReady="ProductionReady" WorkingSpaceDimension="3D" LocalSpaceDimension="2" ProcessName="DEM-VelocityBC-Process" help="" VariableName="SPHEREBC">
     <TopologyFeatures></TopologyFeatures>
     <inputs></inputs>
     <outputs></outputs>
